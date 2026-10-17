@@ -12,12 +12,11 @@ source "$input/server.conf"
 
 service_dir="$output/service"
 
-
 stop_pid() {
     local pid="$1"
     if kill -0 "$pid" 2>/dev/null; then
         kill "$pid" 2>/dev/null || true
-        for _ in $(seq 1 20); do
+        for _ in $(seq 1 10); do
             kill -0 "$pid" 2>/dev/null || return 0
             sleep 0.1
         done
@@ -26,10 +25,10 @@ stop_pid() {
 }
 
 if [ "$action" = "repair" ]; then
-    ps -p "$TARGET_PID" -o pid=,user=,stat=,args= > "$output/process.txt"
+    ps -p "$TARGET_PID" -o pid=,user=,stat=,args= > "$output/process.txt" || true
 
     : > "$output/collector-sample.log"
-    for _ in $(seq 1 50); do
+    for _ in $(seq 1 10); do
         if [ -f "$WORKER_LOG" ]; then
             grep 'TICK' "$WORKER_LOG" | tail -n 2 >> "$output/collector-sample.log" || true
             [ -s "$output/collector-sample.log" ] && break
@@ -48,10 +47,10 @@ EOF
 
     rm -rf "$service_dir"
     mkdir -p "$service_dir"
-    bash "$START_TOOL" "$output/server.conf" "$service_dir"
+    bash "$START_TOOL" "$output/server.conf" "$service_dir" > /dev/null 2>&1 || true
 
-    for _ in $(seq 1 100); do
-        if curl -fsS --max-time 1 "http://127.0.0.1:$TARGET_PORT/status" -o "$output/http-body.txt" -w '%{http_code}'\n > "$output/http-status.txt" 2>/dev/null; then
+    for _ in $(seq 1 10); do
+        if curl -fsS --max-time 0.2 "http://127.0.0.1:$TARGET_PORT/status" -o "$output/http-body.txt" -w '%{http_code}\n' > "$output/http-status.txt" 2>/dev/null; then
             if [ "$(cat "$output/http-status.txt")" = "200" ]; then
                 break
             fi
@@ -63,7 +62,7 @@ elif [ "$action" = "cleanup" ]; then
     if [ -f "$service_dir/pid" ]; then
         stop_pid "$(cat "$service_dir/pid")"
     fi
-    for _ in $(seq 1 100); do
+    for _ in $(seq 1 10); do
         if ! ss -ltn 2>/dev/null | grep -q ":$TARGET_PORT "; then
             break
         fi

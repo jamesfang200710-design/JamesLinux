@@ -9,8 +9,9 @@ output=${2:?需要输出目录}
 cd "$input/handover"
 pwd > "$output/location.txt"
 cat .robot-id > "$output/robot-id.txt"
-if [ -f "notes/welcome.txt" ]; then
-    cat notes/welcome.txt > "$output/welcome.txt"
+found_file=$(find "$input" -name "welcome.txt" -type f -print -quit)
+if [ -n "$found_file" ]; then
+    cat "$found_file" > "$output/welcome.txt"
 else
-    cat welcome.txt > "$output/welcome.txt"
+    cat welcome.txt > "$output/welcome.txt" || true
 fi
