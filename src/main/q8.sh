@@ -55,7 +55,7 @@ EOF
 
     # 有界重试请求 HTTP
     for _ in $(seq 1 100); do
-        if curl -fsS --max-time 1 "http://127.0.0.1:$TARGET_PORT/status" -o "$output/http-body.txt" -w '%{http_code}' > "$output/http-status.txt" 2>/dev/null; then
+        if curl -fsS --max-time 1 "http://127.0.0.1:$TARGET_PORT/status" -o "$output/http-body.txt" -w '%{http_code}'\n > "$output/http-status.txt" 2>/dev/null; then
             if [ "$(cat "$output/http-status.txt")" = "200" ]; then
                 break
             fi
