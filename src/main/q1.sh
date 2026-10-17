@@ -9,4 +9,8 @@ output=${2:?需要输出目录}
 cd "$input/handover"
 pwd > "$output/location.txt"
 cat .robot-id > "$output/robot-id.txt"
-cat welcome.txt > "$output/welcome.txt"
+if [ -f "notes/welcome.txt" ]; then
+    cat notes/welcome.txt > "$output/welcome.txt"
+else
+    cat welcome.txt > "$output/welcome.txt"
+fi
