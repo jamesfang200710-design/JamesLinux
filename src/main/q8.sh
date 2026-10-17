@@ -25,7 +25,12 @@ stop_pid() {
 }
 
 if [ "$action" = "repair" ]; then
-    ps -p "$TARGET_PID" -o pid=,user=,stat=,args= > "$output/process.txt" || true
+    ps -p "$TARGET_PID" -o pid= -o user= -o stat= -o args= | while read -r p_pid p_user p_stat p_cmd; do
+        echo "pid=$p_pid"
+        echo "user=$p_user"
+        echo "state=$p_stat"
+        echo "command=$p_cmd"
+    done > "$output/process.txt" || true
 
     : > "$output/collector-sample.log"
     for _ in $(seq 1 10); do
