@@ -7,7 +7,7 @@ output=${2:?需要输出目录}
 
 action=${3:-repair}
 # TODO：删除下方提示和 exit 77，再填写你的命令。
-ource "$input/process.env"
+source "$input/process.env"
 source "$input/server.conf"
 
 service_dir="$output/service"
