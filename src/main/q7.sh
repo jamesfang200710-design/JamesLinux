@@ -6,17 +6,23 @@ input=${1:?需要输入目录}
 output=${2:?需要输出目录}
 
 # TODO：删除下方提示和 exit 77，再填写你的命令。
-ws="$output/sentry_ws"
-mkdir -p "$ws/scripts" "$ws/config" "$ws/logs" "$ws/tmp"
-touch "$ws/logs/.keep" "$ws/tmp/scratch.txt"
+source "$input/remote.env"
+mkdir -p "$output/received"
+ssh_config="$output/ssh_config"
 
-cat > "$ws/scripts/hello.sh" <<'EOF'
-#!/bin/bash
-echo "Hello, AIM Linux!"
+cat > "$ssh_config" <<EOF
+Host aim-sentry
+    HostName $HOST
+    Port $PORT
+    User $REMOTE_USER
+    IdentityFile "$KEY_PATH"
+    UserKnownHostsFile "$KNOWN_HOSTS"
+    IdentitiesOnly yes
+    StrictHostKeyChecking yes
+    BatchMode yes
 EOF
 
-cat > "$ws/config/robot.conf" <<'EOF'
-robot=sentry
-mode=training
-log_level=INF0
-EOF
+chmod 600 "$ssh_config"
+
+ssh -F "$ssh_config" aim-sentry whoami > "$output/remote-user.txt"
+scp -F "$ssh_config" "aim-sentry:$REMOTE_LOG" "$output/received/errors.log"

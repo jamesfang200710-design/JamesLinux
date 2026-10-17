@@ -6,7 +6,8 @@ input=${1:?需要输入目录}
 output=${2:?需要输出目录}
 
 # TODO：删除下方提示和 exit 77，再填写你的命令。
-ource "$input/launch.env"
+source "$input/launch.env"
+set +e
 bash "$LAUNCH_TOOL" "$MODEL_PATH" "$CAMERA_PATH" > "$output/stdout.log" 2> "$output/stderr.log"
 rc=$?
 set -e

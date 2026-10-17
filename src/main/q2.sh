@@ -18,5 +18,5 @@ EOF
 cat > "$ws/config/robot.conf" <<'EOF'
 robot=sentry
 mode=training
-log_level=INF0
+log_level=INFO
 EOF
